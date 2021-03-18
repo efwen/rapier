@@ -1,5 +1,6 @@
 add_library(rapier version.cpp)
 
+target_compile_options(rapier PUBLIC -Wall)
 target_include_directories(rapier PUBLIC fmt::fmt ../include)
 target_link_libraries(rapier fmt::fmt)
 
