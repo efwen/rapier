@@ -19,19 +19,7 @@ public:
   }
 };
 
-int main() {
-  std::cout << "Hello Rapier v" << rp::getVersion().toString() << "!\n";
-
-  auto app = std::make_unique<HelloApp>();
-  app->init();
-
-  const uint32_t max_frame_count = 40;
-  for(uint32_t frame_count = 0; frame_count < max_frame_count; frame_count++) {
-    std::cout << "frame " << frame_count << '\n';
-    app->update();
-  }
-
-  app->shutdown();
-
+int main(int argc, char** argv) {
+  rp::run(std::make_unique<HelloApp>(), argc, argv);
   return 0;
 }
