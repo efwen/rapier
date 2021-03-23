@@ -1,11 +1,13 @@
 #include <iostream>
 
 #include "rp/core.hpp"
+#include "rp/log.hpp"
 #include "rp/app.hpp"
 #include "rp/version.hpp"
 
 namespace rp {
   void run(std::unique_ptr<App> app, int argc, char** argv) {
+    rp::log::core<log::Level::kInfo>("Hello log!");
     std::cout << "Rapier v" << getVersion().toString() << " started!\n";
     std::cout << argc - 1 << " arguments given\n";
 
