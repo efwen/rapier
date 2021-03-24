@@ -2,13 +2,22 @@
 #include <fmt/format.h>
 
 namespace rp::log {
-  namespace internal { 
-    void logCoreMessage(Level log_level, std::string_view format_string, fmt::format_args args) {
-      fmt::print("Hello from logCore\n");
-    }
 
-    void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args) {
-      fmt::print("Hello from LogClient\n");
+
+  std::string    app_prefix = "[App]";
+  constexpr auto rapier_prefix = "[Rapier]";
+
+  void init() {
+
+  }
+  namespace internal { 
+    void logMessage(LogSource log_source, Level log_level, std::string_view format_string, fmt::format_args args) {
+      fmt::vprint(
+        fmt::format("{}[{}] {}\n",
+        (log_source == LogSource::kEngine) ? rapier_prefix : app_prefix,
+        levelNames[static_cast<size_t>(log_level)],
+        format_string),
+      args);
     }
   }
 }

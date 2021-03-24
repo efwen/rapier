@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string_view>
+#include <array>
+
 #include <fmt/format.h>
 
 namespace rp::log {
@@ -12,20 +14,30 @@ namespace rp::log {
     kSize,
   };
 
+  constexpr std::array<const char*, static_cast<size_t>(Level::kSize)> levelNames {
+    "kTrace",
+    "kInfo",
+    "kWarn",
+    "kError"
+  };
+
   void init();
 
   namespace internal {
-    void logCoreMessage(Level log_level, std::string_view format_string, fmt::format_args args);
-    void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args);
+    enum class LogSource : uint8_t {
+      kEngine = 0,
+      kClient,
+    };
+
+    void logMessage(LogSource log_source, Level log_level, std::string_view format_string, fmt::format_args args);
   }
 
   template<Level L, typename... Args>
-  void core(std::string_view format, const Args&... args)  {
-    internal::logCoreMessage(L, format, fmt::make_format_args(args...));
-  }
-
-  template<Level L, typename... Args>
-  void client(std::string_view forrmat, const Args&... args) {
-    internal::logClientMessage(L, format, fmt::make_format_args(args...));
+  void write(std::string_view format, const Args&... args)  {
+#ifdef RP_ENGINE
+    internal::logMessage(internal::LogSource::kEngine, L, format, fmt::make_format_args(args...));
+#else
+    internal::logMessage(internal::LogSource::kClient, L, format, fmt::make_format_args(args...));
+#endif
   }
 }

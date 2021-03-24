@@ -4,3 +4,4 @@
 // not rapier itself
 #include "rp/app.hpp"
 #include "rp/core.hpp"
+#include "rp/log.hpp"

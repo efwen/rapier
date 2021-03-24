@@ -7,15 +7,15 @@
 class HelloApp : public rp::App {
 public:
   void init() {
-    std::cout << "Hello App init method\n";
+    rp::log::write<rp::log::Level::kTrace>("Hello App Init Method");
   }
 
   void update() {
-    std::cout << "Hello update method\n";
+    rp::log::write<rp::log::Level::kTrace>("Hello App Update Method");
   }
 
   void shutdown() {
-    std::cout << "Hello App shutdown method\n";
+    rp::log::write<rp::log::Level::kTrace>("Hello App Shutdown Method");
   }
 };
 
