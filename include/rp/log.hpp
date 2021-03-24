@@ -14,15 +14,6 @@ namespace rp::log {
     kSize,
   };
 
-  constexpr std::array<const char*, static_cast<size_t>(Level::kSize)> levelNames {
-    "kTrace",
-    "kInfo",
-    "kWarn",
-    "kError"
-  };
-
-  void init();
-
   namespace internal {
     enum class LogSource : uint8_t {
       kEngine = 0,

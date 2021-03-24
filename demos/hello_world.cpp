@@ -8,6 +8,12 @@ class HelloApp : public rp::App {
 public:
   void init() {
     rp::log::write<rp::log::Level::kTrace>("Hello App Init Method");
+
+    rp::log::write<rp::log::Level::kTrace>("Test trace log");
+    rp::log::write<rp::log::Level::kInfo>("Test info log");
+    rp::log::write<rp::log::Level::kWarn>("Test warn log");
+    rp::log::write<rp::log::Level::kError>("Test error log");
+
   }
 
   void update() {
