@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "rp/core.hpp"
-#include "rp/log.hpp"
+#include "log.hpp"
 #include "rp/app.hpp"
 #include "rp/version.hpp"
 
