@@ -9,7 +9,6 @@ namespace rp::log {
     kClient,
   };
 
-  void init(std::string_view client_name);
 
   void logMessage(Source log_source, Level log_level, std::string_view format_string, fmt::format_args args);
   void logEngineMessage(Level log_level, std::string_view format_string, fmt::format_args args);

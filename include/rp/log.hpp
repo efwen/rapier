@@ -14,6 +14,7 @@ namespace rp::log {
     kSize,
   };
 
+  void setClientPrefix(std::string_view client_name);
   void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args);
 
   template<typename... Args>

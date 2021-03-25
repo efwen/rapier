@@ -6,6 +6,10 @@
 
 class HelloApp : public rp::App {
 public:
+  HelloApp() {
+    rp::log::setClientPrefix("HelloApp");
+  }
+
   void init() {
     rp::log::info("Hello App Init Method");
   }
