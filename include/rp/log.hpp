@@ -34,6 +34,6 @@ namespace rp::log {
 
   template<typename... Args>
   void error(std::string_view format, const Args&... args) {
-    logClientMessage(Source::kClient, Level::kError, format, fmt::make_format_args(args...));
+    logClientMessage(Level::kError, format, fmt::make_format_args(args...));
   }
 }
