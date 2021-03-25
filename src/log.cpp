@@ -5,18 +5,18 @@
 
 namespace rp::log {
 
-  std::string    app_prefix    = "[App]";
-  constexpr auto rapier_prefix = "[Rapier]";
+  std::string    app_prefix    = "Client";
+  constexpr auto rapier_prefix = "Rapier";
   
-  constexpr std::array<const char*, static_cast<size_t>(Level::kSize)> kLevelNames {
-    "kTrace",
-    "kInfo",
-    "kWarn",
-    "kError"
+  constexpr std::array<const char*, static_cast<size_t>(Level::kSize)> kLevelPrefixes {
+    "Trace:",
+    " Info:",
+    " Warn:",
+    "Error:"
   };
 
   constexpr std::array<rp::Color, static_cast<size_t>(log::Level::kSize)> kLevelColors = {
-    Color{0xFF, 0xFF, 0xFF, 0xFF},
+    Color{0xCC, 0xCC, 0xCC, 0xFF},
     Color{0xFF, 0xFF, 0x00, 0xFF},
     Color{0xFF, 0x99, 0x00, 0xFF},
     Color{0xFF, 0x00, 0x00, 0xFF}
@@ -37,9 +37,9 @@ namespace rp::log {
 
       // Log Format: [Source][Level] {Formatted String}
       fmt::vprint(
-        fmt::format("{}[{}] {}\n",
+        fmt::format("[{}] {} {}\n",
           (log_source == LogSource::kEngine) ? rapier_prefix : app_prefix,
-          kLevelNames[static_cast<size_t>(log_level)],
+          kLevelPrefixes[static_cast<size_t>(log_level)],
           format_string),
         args);
 

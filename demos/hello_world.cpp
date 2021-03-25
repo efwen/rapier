@@ -7,21 +7,15 @@
 class HelloApp : public rp::App {
 public:
   void init() {
-    rp::log::write<rp::log::Level::kTrace>("Hello App Init Method");
-
-    rp::log::write<rp::log::Level::kTrace>("Test trace log");
-    rp::log::write<rp::log::Level::kInfo>("Test info log");
-    rp::log::write<rp::log::Level::kWarn>("Test warn log");
-    rp::log::write<rp::log::Level::kError>("Test error log");
-
+    rp::log::info("Hello App Init Method");
   }
 
   void update() {
-    rp::log::write<rp::log::Level::kTrace>("Hello App Update Method");
+    rp::log::trace("Hello App Update Method");
   }
 
   void shutdown() {
-    rp::log::write<rp::log::Level::kTrace>("Hello App Shutdown Method");
+    rp::log::info("Hello App Shutdown Method");
   }
 };
 
