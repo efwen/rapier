@@ -1,35 +1,43 @@
 #pragma once
 
-#include "rp/log.hpp"
+#include <string_view>
+#include <array>
+
+#include <fmt/format.h>
 
 namespace rp::log {
-
-  enum class Source : uint8_t {
-    kEngine = 0,
-    kClient,
+  enum class Level : uint8_t {
+    kTrace = 0,
+    kInfo,
+    kWarn,
+    kError,
+    kSize,
   };
 
+  constexpr auto horiz_rule = "--------------------------------------------";
+  constexpr auto blank_line = "";
+  constexpr auto new_line   = "\n";
 
-  void logMessage(Source log_source, Level log_level, std::string_view format_string, fmt::format_args args);
-  void logEngineMessage(Level log_level, std::string_view format_string, fmt::format_args args);
+  void setClientPrefix(std::string_view client_name);
+  void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args);
 
   template<typename... Args>
-  void rp_trace(std::string_view format, const Args&... args) {
-    logEngineMessage(Level::kTrace, format, fmt::make_format_args(args...));
+  void trace(std::string_view format, const Args&... args) {
+    logClientMessage(Level::kTrace, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
-  void rp_info(std::string_view format, const Args&... args) {
-    logEngineMessage(Level::kInfo, format, fmt::make_format_args(args...));
+  void info(std::string_view format, const Args&... args) {
+    logClientMessage(Level::kInfo, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
-  void rp_warn(std::string_view format, const Args&... args) {
-    logEngineMessage(Level::kWarn, format, fmt::make_format_args(args...));
+  void warn(std::string_view format, const Args&... args) {
+    logClientMessage(Level::kWarn, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
-  void rp_error(std::string_view format, const Args&... args) {
-    logEngineMessage(Level::kError, format, fmt::make_format_args(args...));
+  void error(std::string_view format, const Args&... args) {
+    logClientMessage(Level::kError, format, fmt::make_format_args(args...));
   }
 }

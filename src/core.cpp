@@ -1,9 +1,8 @@
-#include <iostream>
+#include "pch.hpp"
 
-#include "rp/core.hpp"
-#include "log.hpp"
-#include "rp/app.hpp"
-#include "rp/version.hpp"
+#include "core.hpp"
+#include "app.hpp"
+#include "version.hpp"
 
 namespace rp {
   void run(std::unique_ptr<App> app, int argc, char** argv) {

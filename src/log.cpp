@@ -1,7 +1,4 @@
-#include "log.hpp"
-
-#include <fmt/format.h>
-#include <fmt/color.h>
+#include "pch.hpp"
 
 namespace rp::log {
 

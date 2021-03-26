@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-#include <rp/rapier.hpp>
+#include <rapier.hpp>
 
 class HelloApp : public rp::App {
 public:

@@ -1,7 +1,8 @@
 add_library(rapier core.cpp version.cpp log.cpp)
 
-target_compile_options(rapier PUBLIC -Wall)
-target_include_directories(rapier PUBLIC fmt::fmt ../include)
+target_compile_options(rapier PRIVATE -Wall)
+target_precompile_headers(rapier PRIVATE pch.hpp)
+target_include_directories(rapier PRIVATE fmt::fmt)
 target_link_libraries(rapier fmt::fmt)
 
 set_target_properties(rapier

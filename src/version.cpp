@@ -1,6 +1,6 @@
-#include "rp/version.hpp"
+#include "pch.hpp"
 
-#include <fmt/format.h>
+#include "version.hpp"
 
 namespace rp {
   constexpr Version version{0, 0, 1};
