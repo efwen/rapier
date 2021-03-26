@@ -1,4 +1,4 @@
-add_library(rapier core/core.cpp core/window.cpp util/version.cpp log/log.cpp)
+add_library(rapier core/core.cpp core/window.cpp util/version.cpp log/log.cpp platform/win32_window.cpp)
 
 target_compile_options(rapier PRIVATE -Wall)
 target_precompile_headers(rapier PRIVATE pch.hpp)

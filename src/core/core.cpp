@@ -15,9 +15,13 @@ namespace rp {
 
     log::rp_info(log::horiz_rule);
     log::rp_info("Initializing Rapier!");
+    log::rp_info(log::horiz_rule);
 
+    auto window = createWindow("Hello Window", 1280, 768);
+    window->setCallback([]() { log::info("Window Callback"); });
     app->init();
 
+    log::rp_info(log::horiz_rule);
     log::rp_info("Initialization Complete!");
     log::rp_info("{}{}", log::horiz_rule, log::new_line);
 
@@ -29,9 +33,11 @@ namespace rp {
 
     log::rp_info(log::horiz_rule);
     log::rp_info("Shutting Down Rapier!");
+    log::rp_info(log::horiz_rule);
 
     app->shutdown();
 
+    log::rp_info(log::horiz_rule);
     log::rp_info("See you next time!");
     log::rp_info(log::horiz_rule);
 
