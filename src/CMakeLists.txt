@@ -1,4 +1,4 @@
-add_library(rapier core.cpp version.cpp)
+add_library(rapier core.cpp version.cpp log.cpp)
 
 target_compile_options(rapier PUBLIC -Wall)
 target_include_directories(rapier PUBLIC fmt::fmt ../include)

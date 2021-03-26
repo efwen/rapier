@@ -6,16 +6,20 @@
 
 class HelloApp : public rp::App {
 public:
+  HelloApp() {
+    rp::log::setClientPrefix("HelloApp");
+  }
+
   void init() {
-    std::cout << "Hello App init method\n";
+    rp::log::info("Hello App Init Method");
   }
 
   void update() {
-    std::cout << "Hello update method\n";
+    rp::log::trace("Hello App Update Method");
   }
 
   void shutdown() {
-    std::cout << "Hello App shutdown method\n";
+    rp::log::info("Hello App Shutdown Method");
   }
 };
 
