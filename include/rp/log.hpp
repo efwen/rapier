@@ -14,6 +14,10 @@ namespace rp::log {
     kSize,
   };
 
+  constexpr auto horiz_rule = "--------------------------------------------";
+  constexpr auto blank_line = "";
+  constexpr auto new_line   = "\n";
+
   void setClientPrefix(std::string_view client_name);
   void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args);
 
