@@ -2,7 +2,9 @@
 
 #include "core/core.hpp"
 #include "core/app.hpp"
+#include "core/window.hpp"
 #include "util/version.hpp"
+
 
 namespace rp {
   void run(std::unique_ptr<App> app, int argc, char** argv) {

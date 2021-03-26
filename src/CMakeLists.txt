@@ -1,8 +1,8 @@
-add_library(rapier core/core.cpp util/version.cpp log/log.cpp)
+add_library(rapier core/core.cpp core/window.cpp util/version.cpp log/log.cpp)
 
 target_compile_options(rapier PRIVATE -Wall)
 target_precompile_headers(rapier PRIVATE pch.hpp)
-target_include_directories(rapier PRIVATE fmt::fmt ${CMAKE_PROJECT_DIRECTORY})
+target_include_directories(rapier PRIVATE fmt::fmt "${CMAKE_PROJECT_DIRECTORY}")
 target_link_libraries(rapier fmt::fmt)
 
 set_target_properties(rapier
