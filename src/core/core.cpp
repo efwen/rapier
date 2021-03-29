@@ -8,38 +8,44 @@
 
 namespace rp {
   void run(std::unique_ptr<App> app, int argc, char** argv) {
-    log::rp_info(log::horiz_rule);
-    log::rp_info("Rapier v{} started!", getVersion().toString());
-    log::rp_info("{} CLI arguments given", argc - 1);
-    log::rp_info("{}{}", log::horiz_rule, log::new_line);
+    try {
+      log::rp_info(log::horiz_rule);
+      log::rp_info("Rapier v{} started!", getVersion().toString());
+      log::rp_info("{} CLI arguments given", argc - 1);
+      log::rp_info("{}{}", log::horiz_rule, log::new_line);
 
-    log::rp_info(log::horiz_rule);
-    log::rp_info("Initializing Rapier!");
-    log::rp_info(log::horiz_rule);
+      log::rp_info(log::horiz_rule);
+      log::rp_info("Initializing Rapier!");
+      log::rp_info(log::horiz_rule);
 
-    auto window = createWindow("Hello Window", 1280, 768);
-    window->setCallback([]() { log::info("Window Callback"); });
-    app->init();
+      auto window = createWindow("Hello Window", 1280, 768);
+      window->setCallback([]() { log::info("Window Callback"); });
+      app->init();
 
-    log::rp_info(log::horiz_rule);
-    log::rp_info("Initialization Complete!");
-    log::rp_info("{}{}", log::horiz_rule, log::new_line);
+      log::rp_info(log::horiz_rule);
+      log::rp_info("Initialization Complete!");
+      log::rp_info("{}{}", log::horiz_rule, log::new_line);
 
-    const uint32_t max_frame_count = 10;
-    for(uint32_t frame_count = 0; frame_count < max_frame_count; frame_count++) {
-      log::rp_trace("Frame {}", frame_count);
-      app->update();
+      bool running = true;
+      while(running) {
+        app->update();
+        running = window->processMessages();
+      }
+
+      log::rp_info(log::horiz_rule);
+      log::rp_info("Shutting Down Rapier!");
+      log::rp_info(log::horiz_rule);
+
+      app->shutdown();
+
+      log::rp_info(log::horiz_rule);
+      log::rp_info("See you next time!");
+      log::rp_info(log::horiz_rule);
+    } catch(std::exception& e) {
+      log::rp_error(log::horiz_rule);
+      log::rp_error("UNCAUGHT EXCEPTION!: {}", e.what());
+      log::rp_error(log::horiz_rule);
+      exit(-1);
     }
-
-    log::rp_info(log::horiz_rule);
-    log::rp_info("Shutting Down Rapier!");
-    log::rp_info(log::horiz_rule);
-
-    app->shutdown();
-
-    log::rp_info(log::horiz_rule);
-    log::rp_info("See you next time!");
-    log::rp_info(log::horiz_rule);
-
   }
 }

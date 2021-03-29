@@ -8,6 +8,7 @@ namespace rp {
     public:
       virtual ~Window() = default;
 
+      virtual bool processMessages() = 0;
       virtual void setCallback(const std::function<void()>& callback) = 0;
   };
 
