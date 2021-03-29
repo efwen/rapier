@@ -12,7 +12,7 @@ namespace rp {
       ~Win32Window();
 
       bool processMessages();
-      void setCallback(const std::function<void()>& callback);
+      void setCallback(const WindowCallback& callback);
 
     protected:
       static const char* windowClassName;   // name for window class, needed for createWindow(...) call

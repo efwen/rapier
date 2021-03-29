@@ -19,7 +19,7 @@ namespace rp {
       log::rp_info(log::horiz_rule);
 
       auto window = createWindow("Hello Window", 1280, 768);
-      window->setCallback([]() { log::info("Window Callback"); });
+      window->setCallback([]() { log::rp_info("Window Callback"); });
       app->init();
 
       log::rp_info(log::horiz_rule);

@@ -64,20 +64,59 @@ namespace rp {
     return true;
   }
 
-  void Win32Window::setCallback(const std::function<void()>& callback) {
-    log::rp_error("Win32Window setCallback() Function not implemented!");
+  void Win32Window::setCallback(const WindowCallback& callback) {
+    //log::rp_error("Win32Window setCallback() Function not implemented!");
+    mCallback = callback;
   }
 
   LRESULT Win32Window::internalWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    auto getButtonId = [=](){ return (message - WM_MOUSEFIRST) / 3; };
+
     switch(message) {
       case WM_CLOSE:
       {
         PostQuitMessage(0);
         return 0;
       }
+      case WM_KEYDOWN:
+      {
+        log::rp_info("KeyDown: {}", wParam);
+        if(mCallback) mCallback();
+        break;
+      }
+      case WM_KEYUP:
+      {
+        log::rp_info("KeyUp: {}", wParam);
+        if(mCallback) mCallback();
+        break;
+      }
+      case WM_LBUTTONDOWN:
+      case WM_RBUTTONDOWN:
+      case WM_MBUTTONDOWN:
+      {
+        log::rp_info("Mouse Button Down: {}", getButtonId());
+        if(mCallback) mCallback();
+        break;
+      }
+      case WM_LBUTTONUP:
+      case WM_RBUTTONUP:
+      case WM_MBUTTONUP:
+      {
+        log::rp_info("Mouse Button Up: {}", getButtonId());
+        if(mCallback) mCallback();
+        break;
+      }
+      case WM_MOUSEWHEEL:
+      {
+        log::rp_info("Mouse Scroll: {}", GET_WHEEL_DELTA_WPARAM(wParam));
+        if(mCallback) mCallback();
+        break;
+      }
       default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
+
+    return DefWindowProc(hWnd, message, wParam, lParam);
   }
 
   LRESULT CALLBACK Win32Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
