@@ -65,7 +65,8 @@ namespace rp {
   }
 
   LRESULT Win32Window::internalWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    auto getButtonId = [=](){ return (message - WM_MOUSEFIRST) / 3; };
+    auto getMouseButtonId = [=]() { return static_cast<input::Mouse::Button>((message - WM_MOUSEFIRST) / 3); };
+    auto getMousePos = [=]() { return input::Mouse::Position{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)}; };
 
     switch(message) {
       case WM_CLOSE:
@@ -116,8 +117,8 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::MouseButtonPressed;
-        event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
-        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        event.mouse.button = getMouseButtonId();
+        event.mouse.position = getMousePos();
         if(mCallback) mCallback(event);
         return 0;
       }
@@ -127,8 +128,8 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::MouseButtonReleased;
-        event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
-        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        event.mouse.button = getMouseButtonId();
+        event.mouse.position = getMousePos(); 
         if(mCallback) mCallback(event);
         return 0;
       }
@@ -136,7 +137,7 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::MouseMoved;
-        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        event.mouse.position = getMousePos();
         if(mCallback) mCallback(event);
         return 0;
       }
@@ -144,7 +145,7 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::MouseWheelScrolled;
-        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        event.mouse.position = getMousePos(); 
         event.mouse.scroll = GET_WHEEL_DELTA_WPARAM(wParam);
         if(mCallback) mCallback(event);
         return 0;
