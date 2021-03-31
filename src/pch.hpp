@@ -4,13 +4,9 @@
 #include <cstdint>
 #include <array>
 #include <memory>
+#include <exception>
 
-//external libaries
-#ifdef WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #include <Windows.h>
-#endif
-
+//fmt format library
 #include <fmt/format.h>
 #include <fmt/color.h>
 

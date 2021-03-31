@@ -7,11 +7,11 @@
 
 namespace rp::log {
   enum class Level : uint8_t {
-    kTrace = 0,
-    kInfo,
-    kWarn,
-    kError,
-    kSize,
+    Trace,
+    Info,
+    Warn,
+    Error,
+    ENUM_SIZE,
   };
 
   constexpr auto horiz_rule = "--------------------------------------------";
@@ -23,21 +23,21 @@ namespace rp::log {
 
   template<typename... Args>
   void trace(std::string_view format, const Args&... args) {
-    logClientMessage(Level::kTrace, format, fmt::make_format_args(args...));
+    logClientMessage(Level::Trace, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
   void info(std::string_view format, const Args&... args) {
-    logClientMessage(Level::kInfo, format, fmt::make_format_args(args...));
+    logClientMessage(Level::Info, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
   void warn(std::string_view format, const Args&... args) {
-    logClientMessage(Level::kWarn, format, fmt::make_format_args(args...));
+    logClientMessage(Level::Warn, format, fmt::make_format_args(args...));
   }
 
   template<typename... Args>
   void error(std::string_view format, const Args&... args) {
-    logClientMessage(Level::kError, format, fmt::make_format_args(args...));
+    logClientMessage(Level::Error, format, fmt::make_format_args(args...));
   }
 }

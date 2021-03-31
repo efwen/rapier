@@ -19,7 +19,8 @@ namespace rp {
       log::rp_info(log::horiz_rule);
 
       auto window = createWindow("Hello Window", 1280, 768);
-      window->setCallback([]() { log::rp_info("Window Callback"); });
+
+      window->setCallback([](const Event& e) { log::rp_trace("{0} >>> {1}, [{2}, ({3}, {4}), {5}])", Event::GetEventName(e.type), input::Keyboard::GetKeyName(e.key_code), e.mouse.button, e.mouse.position.x, e.mouse.position.y, e.mouse.scroll); });
       app->init();
 
       log::rp_info(log::horiz_rule);

@@ -1,8 +1,8 @@
 #include "pch.hpp"
 
 #include "platform/win32_window.hpp"
+#include "platform/win32_keyboard.hpp"
 
-#include <exception>
 namespace rp {
   const char* Win32Window::windowClassName = "RPWindowClass";
   bool Win32Window::wcRegistered = false;
@@ -64,54 +64,91 @@ namespace rp {
     return true;
   }
 
-  void Win32Window::setCallback(const WindowCallback& callback) {
-    //log::rp_error("Win32Window setCallback() Function not implemented!");
-    mCallback = callback;
-  }
-
   LRESULT Win32Window::internalWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     auto getButtonId = [=](){ return (message - WM_MOUSEFIRST) / 3; };
 
     switch(message) {
       case WM_CLOSE:
       {
+        Event event;
+        event.type = Event::Type::WindowClosed;
+        if(mCallback) mCallback(event);
         PostQuitMessage(0);
         return 0;
       }
       case WM_KEYDOWN:
       {
-        log::rp_info("KeyDown: {}", wParam);
-        if(mCallback) mCallback();
+        if(auto key = input::translateWin32KeyCode(wParam, lParam)) {
+          Event event;
+          event.type = Event::Type::KeyPressed;
+          event.key_code = key.value();
+          if(mCallback) mCallback(event);
+        }
         break;
       }
       case WM_KEYUP:
       {
-        log::rp_info("KeyUp: {}", wParam);
-        if(mCallback) mCallback();
+        Event event;
+        event.type = Event::Type::KeyReleased;
+        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        if(mCallback) mCallback(event);
+        break;
+      }
+      case WM_SYSKEYDOWN:
+      {
+        Event event;
+        event.type = Event::Type::KeyPressed;
+        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        if(mCallback) mCallback(event);
+        break;
+      }
+      case WM_SYSKEYUP:
+      {
+        Event event;
+        event.type = Event::Type::KeyReleased;
+        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        if(mCallback) mCallback(event);
         break;
       }
       case WM_LBUTTONDOWN:
       case WM_RBUTTONDOWN:
       case WM_MBUTTONDOWN:
       {
-        log::rp_info("Mouse Button Down: {}", getButtonId());
-        if(mCallback) mCallback();
+        Event event;
+        event.type = Event::Type::MouseButtonPressed;
+        event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
+        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        if(mCallback) mCallback(event);
         break;
       }
       case WM_LBUTTONUP:
       case WM_RBUTTONUP:
       case WM_MBUTTONUP:
       {
-        log::rp_info("Mouse Button Up: {}", getButtonId());
-        if(mCallback) mCallback();
+        Event event;
+        event.type = Event::Type::MouseButtonReleased;
+        event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
+        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        if(mCallback) mCallback(event);
+        break;
+      }
+      case WM_MOUSEMOVE:
+      {
+        Event event;
+        event.type = Event::Type::MouseMoved;
+        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+        if(mCallback) mCallback(event);
         break;
       }
       case WM_MOUSEWHEEL:
       {
-        log::rp_info("Mouse Scroll: {}", GET_WHEEL_DELTA_WPARAM(wParam));
-        if(mCallback) mCallback();
+        Event event;
+        event.type = Event::Type::MouseWheelScrolled;
+        event.mouse.scroll = GET_WHEEL_DELTA_WPARAM(wParam);
+        if(mCallback) mCallback(event);
         break;
       }
+      
       default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }

@@ -3,7 +3,9 @@
 #include "core/window.hpp"
 
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#define NOMINMAX
+#include <windows.h>
+#include <windowsx.h>
 
 namespace rp {
   class Win32Window : public rp::Window {
@@ -12,7 +14,7 @@ namespace rp {
       ~Win32Window();
 
       bool processMessages();
-      void setCallback(const WindowCallback& callback);
+      void setCallback(const Callback& callback);
 
     protected:
       static const char* windowClassName;   // name for window class, needed for createWindow(...) call

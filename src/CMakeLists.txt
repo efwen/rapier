@@ -5,7 +5,7 @@ set(SRC_FILES ${SRC_FILES} util/version.cpp)
 
 if(${WIN32})
   message(STATUS "Adding Windows Platform Files...")
-  set(SRC_FILES ${SRC_FILES} platform/win32_window.cpp)
+  set(SRC_FILES ${SRC_FILES} platform/win32_window.cpp platform/win32_keyboard.cpp)
 else()
   message(FATAL_ERROR "OS not supported!") 
 endif()
