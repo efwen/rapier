@@ -3,6 +3,9 @@
 #include "platform/win32_window.hpp"
 #include "platform/win32_keyboard.hpp"
 
+#include "input/keyboard.hpp"
+#include "input/mouse.hpp"
+
 namespace rp {
   const char* Win32Window::windowClassName = "RPWindowClass";
   bool Win32Window::wcRegistered = false;

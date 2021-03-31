@@ -1,10 +1,8 @@
 #pragma once
 
-#include <array>
-
 #include "util/util_types.hpp"
-#include "mouse.hpp"
-#include "keyboard.hpp"
+#include "input/mouse.hpp"
+#include "input/keyboard.hpp"
 
 namespace rp {
   struct Event {
