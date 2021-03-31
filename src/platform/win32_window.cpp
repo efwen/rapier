@@ -79,19 +79,17 @@ namespace rp {
       }
       case WM_KEYDOWN:
       {
-        if(auto key = input::translateWin32KeyCode(wParam, lParam)) {
-          Event event;
-          event.type = Event::Type::KeyPressed;
-          event.key_code = key.value();
-          if(mCallback) mCallback(event);
-        }
+        Event event;
+        event.type = Event::Type::KeyPressed;
+        event.key_code = input::translateWin32KeyCode(wParam, lParam);
+        if(mCallback) mCallback(event);
         return 0;
       }
       case WM_KEYUP:
       {
         Event event;
         event.type = Event::Type::KeyReleased;
-        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        event.key_code = input::translateWin32KeyCode(wParam, lParam);
         if(mCallback) mCallback(event);
         return 0;
       }
@@ -99,7 +97,7 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::KeyPressed;
-        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        event.key_code = input::translateWin32KeyCode(wParam, lParam);
         if(mCallback) mCallback(event);
         return 0;
       }
@@ -107,7 +105,7 @@ namespace rp {
       {
         Event event;
         event.type = Event::Type::KeyReleased;
-        event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
+        event.key_code = input::translateWin32KeyCode(wParam, lParam);
         if(mCallback) mCallback(event);
         return 0;
       }

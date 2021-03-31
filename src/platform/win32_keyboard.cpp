@@ -3,7 +3,7 @@
 #include "log/log_internal.hpp"
 
 namespace rp::input {
-  std::optional<Keyboard::Key> translateWin32KeyCode(WPARAM win32_key_code, LPARAM flags) {
+  Keyboard::Key translateWin32KeyCode(WPARAM win32_key_code, LPARAM flags) {
 
     switch (win32_key_code) {
       case 'A':
@@ -223,6 +223,6 @@ namespace rp::input {
     }
 
     log::rp_error("KeyCode {:#x} Not Handled!", win32_key_code);
-    return std::nullopt;
+    return Keyboard::Key::Invalid;
   }
 }
