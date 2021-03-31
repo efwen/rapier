@@ -84,7 +84,7 @@ namespace rp {
           event.key_code = key.value();
           if(mCallback) mCallback(event);
         }
-        break;
+        return 0;
       }
       case WM_KEYUP:
       {
@@ -92,7 +92,7 @@ namespace rp {
         event.type = Event::Type::KeyReleased;
         event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_SYSKEYDOWN:
       {
@@ -100,7 +100,7 @@ namespace rp {
         event.type = Event::Type::KeyPressed;
         event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_SYSKEYUP:
       {
@@ -108,7 +108,7 @@ namespace rp {
         event.type = Event::Type::KeyReleased;
         event.key_code = input::translateWin32KeyCode(wParam, lParam).value_or(input::Keyboard::Key::Invalid);
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_LBUTTONDOWN:
       case WM_RBUTTONDOWN:
@@ -119,7 +119,7 @@ namespace rp {
         event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
         event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_LBUTTONUP:
       case WM_RBUTTONUP:
@@ -130,7 +130,7 @@ namespace rp {
         event.mouse.button = static_cast<input::Mouse::Button>(getButtonId());
         event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_MOUSEMOVE:
       {
@@ -138,22 +138,21 @@ namespace rp {
         event.type = Event::Type::MouseMoved;
         event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       case WM_MOUSEWHEEL:
       {
         Event event;
         event.type = Event::Type::MouseWheelScrolled;
+        event.mouse.position = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
         event.mouse.scroll = GET_WHEEL_DELTA_WPARAM(wParam);
         if(mCallback) mCallback(event);
-        break;
+        return 0;
       }
       
       default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
-
-    return DefWindowProc(hWnd, message, wParam, lParam);
   }
 
   LRESULT CALLBACK Win32Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {

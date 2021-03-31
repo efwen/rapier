@@ -14,7 +14,6 @@ namespace rp {
       ~Win32Window();
 
       bool processMessages();
-      void setCallback(const Callback& callback);
 
     protected:
       static const char* windowClassName;   // name for window class, needed for createWindow(...) call
