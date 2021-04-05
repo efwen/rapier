@@ -11,7 +11,10 @@ namespace rp {
     try {
       log::rp_info(log::horiz_rule);
       log::rp_info("Rapier v{} started!", getVersion().toString());
-      log::rp_info("{} CLI arguments given", argc - 1);
+      log::rp_info("{} CLI arguments given", argc);
+      for(int i = 0; i < argc; i++) {
+        log::rp_info("Arg {}: {}", i, argv[i]);
+      }
       log::rp_info("{}{}", log::horiz_rule, log::new_line);
 
       log::rp_info(log::horiz_rule);
@@ -20,7 +23,13 @@ namespace rp {
 
       auto window = createWindow("Hello Window", 1280, 768);
 
-      window->setCallback([](const Event& e) { log::rp_trace("{0} >>> {1}, [{2}, ({3}, {4}), {5}])", Event::GetEventName(e.type), input::Keyboard::GetKeyName(e.key_code), e.mouse.button, e.mouse.position.x, e.mouse.position.y, e.mouse.scroll); });
+      window->setCallback([](const Event& e) {
+        log::rp_trace("{0}", e);
+        if(e.type == Event::Type::MouseButtonPressed && e.mouse.button == input::Mouse::Button::Right) {
+          log::rp_info("RMB Clicked!");
+        }
+      });
+
       app->init();
 
       log::rp_info(log::horiz_rule);

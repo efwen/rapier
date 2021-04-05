@@ -12,7 +12,7 @@ endif()
 
 add_library(rapier ${SRC_FILES})
 
-target_compile_options(rapier PRIVATE -Wall)
+target_compile_options(rapier PRIVATE -Wall -Wextra -Wpedantic)
 target_precompile_headers(rapier PRIVATE pch.hpp)
 target_include_directories(rapier PRIVATE fmt::fmt "${CMAKE_PROJECT_DIRECTORY}")
 target_link_libraries(rapier fmt::fmt)

@@ -11,10 +11,10 @@ namespace rp::log {
   size_t              source_prefix_length = calculateSourcePrefixLength(client_prefix.length()); 
 
   constexpr EnumMatchedArray<log::Level, const char*> kLevelPrefixes {
-    "Trace:",
-    " Info:",
-    " Warn:",
-    "Error:"
+    "[Trace]",
+    " [Info]",
+    " [Warn]",
+    "[Error]"
   };
 
   constexpr EnumMatchedArray<log::Level, fmt::color> kLevelColors {
