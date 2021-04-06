@@ -3,7 +3,7 @@
 #include <string>
 #include <fmt/format.h>
 
-#include "util/util_types.hpp"
+#include "util/util.hpp"
 #include "input/mouse.hpp"
 #include "input/keyboard.hpp"
 
@@ -31,12 +31,12 @@ namespace rp {
     input::Keyboard::Key key_code{};
     MouseInfo mouse{};
 
-    static constexpr const char* GetEventName(Event::Type event_type) {
-      return eventNames[static_cast<size_t>(event_type)];
+    static constexpr auto GetEventName(Event::Type event_type) {
+      return eventNames[INDEX_CAST(event_type)];
     }
 
 private:
-    static constexpr EnumMatchedArray<Event::Type, const char*> eventNames {
+    static constexpr auto eventNames = std::to_array({
       "Invalid",
       "WindowClosed",
       "KeyPressed",
@@ -45,9 +45,9 @@ private:
       "MouseButtonReleased",
       "MouseWheelScrolled",
       "MouseMoved"
-    };
+    });
+    static_assert(eventNames.size() == INDEX_CAST(Event::Type::ENUM_SIZE));
   };
-
 }
 
 template <>

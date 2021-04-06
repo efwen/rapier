@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/util_types.hpp"
+#include "util/util.hpp"
 
 namespace rp::input {
   struct Keyboard {
@@ -30,12 +30,12 @@ namespace rp::input {
       ENUM_SIZE,
     };
 
-    static const char* GetKeyName(Keyboard::Key key) {
-      return keyNames[static_cast<size_t>(key)];
+    static auto GetKeyName(Keyboard::Key key) {
+      return keyNames[INDEX_CAST(key)];
     }
 
     private:
-      static constexpr EnumMatchedArray<Key, const char*> keyNames {
+      static constexpr auto keyNames = std::to_array({
         "Invalid",
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
         "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -57,6 +57,6 @@ namespace rp::input {
         "PrintScreen", "ScrollLock", "Pause",
         "Insert", "Delete", "Home", "End", "PageUp", "PageDown",
         "Up", "Down", "Left", "Right",
-      };
+      });
   };
 }

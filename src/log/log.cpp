@@ -1,6 +1,7 @@
 #include "pch.hpp"
 
-#include "util/util_types.hpp"
+#include "util/util.hpp"
+
 namespace rp::log {
 
   size_t calculateSourcePrefixLength(size_t client_prefix_length);
@@ -10,19 +11,21 @@ namespace rp::log {
   const size_t        rapier_prefix_length = rapier_prefix.length();
   size_t              source_prefix_length = calculateSourcePrefixLength(client_prefix.length()); 
 
-  constexpr EnumMatchedArray<log::Level, const char*> kLevelPrefixes {
+  constexpr auto kLevelPrefixes = std::to_array({
     "[Trace]",
     " [Info]",
     " [Warn]",
     "[Error]"
-  };
+  });
+  static_assert(kLevelPrefixes.size() == INDEX_CAST(log::Level::ENUM_SIZE));
 
-  constexpr EnumMatchedArray<log::Level, fmt::color> kLevelColors {
+  constexpr auto kLevelColors = std::to_array({
     fmt::color::slate_gray,
     fmt::color::yellow,
     fmt::color::orange_red,
     fmt::color::red
-  };
+  });
+  static_assert(kLevelColors.size() == INDEX_CAST(log::Level::ENUM_SIZE));
 
   void logMessage(Source log_source, Level log_level, std::string_view format_string, fmt::format_args args) {
     // Log Format: [Source] Level: {Formatted String}
@@ -32,10 +35,10 @@ namespace rp::log {
 
     auto message = fmt::vformat(format_string, args);  
 
-    fmt::print(fg(kLevelColors[static_cast<size_t>(log_level)]),
+    fmt::print(fg(kLevelColors[INDEX_CAST(log_level)]),
       fmt::format("{} {} {}\n",
         source_prefix,
-        kLevelPrefixes[static_cast<size_t>(log_level)],
+        kLevelPrefixes[INDEX_CAST(log_level)],
         message));
   }
 
