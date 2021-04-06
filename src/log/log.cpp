@@ -51,7 +51,7 @@ namespace rp::log {
   }
 
   size_t calculateSourcePrefixLength(size_t client_prefix_length) {
-    constexpr size_t    base_prefix_spacing = 2;
+    constexpr size_t base_prefix_spacing = 2;
     return std::max(rapier_prefix.length(), client_prefix_length) + base_prefix_spacing;
   }
 
