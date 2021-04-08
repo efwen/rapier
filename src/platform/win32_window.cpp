@@ -10,10 +10,7 @@ namespace rp {
   const char* Win32Window::windowClassName = "RPWindowClass";
   bool Win32Window::wcRegistered = false;
 
-  Win32Window::Win32Window(std::string_view title, uint32_t width, uint32_t height) {
-    log::rp_info("Creating Win32 Window!");
-    log::rp_info("Title: {}, Resolution: {}x{} pixels", title, width, height);
-
+  Win32Window::Win32Window(const Properties& props) : Window(props) {
     if(!wcRegistered) {
       WNDCLASSEX wc = {};
       wc.cbSize = sizeof(wc);
@@ -31,10 +28,10 @@ namespace rp {
     mHandle = CreateWindowEx(
       0,
       windowClassName,
-      title.data(),
+      props.title.data(),
       WS_OVERLAPPEDWINDOW,
       300, 50,
-      width, height,
+      props.width, props.height,
       NULL,
       NULL,
       GetModuleHandle(NULL),

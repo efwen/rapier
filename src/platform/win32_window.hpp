@@ -10,7 +10,7 @@
 namespace rp {
   class Win32Window : public rp::Window {
     public:
-      Win32Window(std::string_view title, uint32_t width, uint32_t height);
+      Win32Window(const Properties& props);
       ~Win32Window();
 
       bool processMessages();

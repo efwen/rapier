@@ -21,7 +21,7 @@ namespace rp {
       log::rp_info("Initializing Rapier!");
       log::rp_info(log::horiz_rule);
 
-      auto window = createWindow("Hello Window", 1280, 768);
+      auto window = createWindow(Window::Properties{"Hello Window", 1280, 768});
 
       window->setCallback([](const Event& e) {
         log::rp_trace("{0}", e);

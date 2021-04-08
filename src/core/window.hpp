@@ -8,7 +8,13 @@ namespace rp {
   class Window {
     public:
       using Callback = std::function<void(const Event& e)>;
+      struct Properties {
+        std::string title;
+        uint32_t width;
+        uint32_t height;
+      };
 
+      Window(const Properties& props);
       virtual ~Window() = default;
 
       virtual bool processMessages() = 0;
@@ -18,7 +24,8 @@ namespace rp {
 
     protected:
       Callback mCallback;
+      Properties mProps;
   };
 
-  std::unique_ptr<Window> createWindow(std::string_view title, uint32_t width, uint32_t height);
+  std::unique_ptr<Window> createWindow(const Window::Properties& props);
 }

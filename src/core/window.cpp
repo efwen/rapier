@@ -4,7 +4,12 @@
 #include "platform/win32_window.hpp"
 
 namespace rp {
-  std::unique_ptr<Window> createWindow(std::string_view title, uint32_t width, uint32_t height) {
-    return std::make_unique<Win32Window>(title, width, height);
+
+  Window::Window(const Window::Properties& props) : mProps(props) {
+    log::rp_info("Creating Window!");
+    log::rp_info("Title: {}, Resolution: {}x{} pixels", props.title, props.width, props.height);
+  }
+  std::unique_ptr<Window> createWindow(const Window::Properties& props) {
+    return std::make_unique<Win32Window>(props);
   }
 }
