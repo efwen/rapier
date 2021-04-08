@@ -15,7 +15,6 @@ public:
   }
 
   void update() {
-    rp::log::trace("Hello App Update Method");
   }
 
   void shutdown() {
@@ -24,6 +23,6 @@ public:
 };
 
 int main(int argc, char** argv) {
-  rp::run(std::make_unique<HelloApp>(), argc, argv);
-  return 0;
+    rp::run(std::make_unique<HelloApp>(), argc, argv);
+    return 0;
 }

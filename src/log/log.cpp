@@ -1,5 +1,7 @@
 #include "pch.hpp"
 
+#include "util/util.hpp"
+
 namespace rp::log {
 
   size_t calculateSourcePrefixLength(size_t client_prefix_length);
@@ -9,45 +11,47 @@ namespace rp::log {
   const size_t        rapier_prefix_length = rapier_prefix.length();
   size_t              source_prefix_length = calculateSourcePrefixLength(client_prefix.length()); 
 
-  constexpr std::array<const char*, static_cast<size_t>(Level::kSize)> kLevelPrefixes {
-    "Trace:",
-    " Info:",
-    " Warn:",
-    "Error:"
-  };
+  constexpr auto kLevelPrefixes = std::to_array({
+    "[Trace]",
+    " [Info]",
+    " [Warn]",
+    "[Error]"
+  });
+  static_assert(kLevelPrefixes.size() == INDEX_CAST(log::Level::ENUM_SIZE));
 
-  constexpr std::array<fmt::color, static_cast<size_t>(log::Level::kSize)> kLevelColors = {
+  constexpr auto kLevelColors = std::to_array({
     fmt::color::slate_gray,
     fmt::color::yellow,
     fmt::color::orange_red,
     fmt::color::red
-  };
+  });
+  static_assert(kLevelColors.size() == INDEX_CAST(log::Level::ENUM_SIZE));
 
   void logMessage(Source log_source, Level log_level, std::string_view format_string, fmt::format_args args) {
-    // Log Format: [Source][Level] {Formatted String}
+    // Log Format: [Source] Level: {Formatted String}
     auto source_prefix = fmt::format("{:<{}}",
-      fmt::format("[{}]", ((log_source == Source::kEngine) ? rapier_prefix : client_prefix)),
+      fmt::format("[{}]", ((log_source == Source::Engine) ? rapier_prefix : client_prefix)),
       source_prefix_length); 
 
     auto message = fmt::vformat(format_string, args);  
 
-    fmt::print(fg(kLevelColors[static_cast<size_t>(log_level)]),
+    fmt::print(fg(kLevelColors[INDEX_CAST(log_level)]),
       fmt::format("{} {} {}\n",
         source_prefix,
-        kLevelPrefixes[static_cast<size_t>(log_level)],
+        kLevelPrefixes[INDEX_CAST(log_level)],
         message));
   }
 
   void logEngineMessage(Level log_level, std::string_view format_string, fmt::format_args args) {
-    logMessage(Source::kEngine, log_level, format_string, args);
+    logMessage(Source::Engine, log_level, format_string, args);
   }
 
   void logClientMessage(Level log_level, std::string_view format_string, fmt::format_args args) {
-    logMessage(Source::kClient, log_level, format_string, args);
+    logMessage(Source::Client, log_level, format_string, args);
   }
 
   size_t calculateSourcePrefixLength(size_t client_prefix_length) {
-    constexpr size_t    base_prefix_spacing = 2;
+    constexpr size_t base_prefix_spacing = 2;
     return std::max(rapier_prefix.length(), client_prefix_length) + base_prefix_spacing;
   }
 
