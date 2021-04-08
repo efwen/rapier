@@ -47,7 +47,6 @@ namespace rp {
   }
 
   Win32Window::~Win32Window() {
-    log::rp_info("Destroying Win32 Window!");
     DestroyWindow(mHandle);
   } 
 
