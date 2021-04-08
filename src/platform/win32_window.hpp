@@ -16,9 +16,6 @@ namespace rp {
       bool processMessages();
 
     protected:
-      static const char* windowClassName;   // name for window class, needed for createWindow(...) call
-      static bool wcRegistered;             // ensures window class is only registered once
-
       HWND mHandle = NULL;
 
       LRESULT internalWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

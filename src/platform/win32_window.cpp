@@ -7,10 +7,11 @@
 #include "input/mouse.hpp"
 
 namespace rp {
-  const char* Win32Window::windowClassName = "RPWindowClass";
-  bool Win32Window::wcRegistered = false;
 
   Win32Window::Win32Window(const Properties& props) : Window(props) {
+    static const char* windowClassName = "RPWindowClass";
+    static bool wcRegistered = false;
+
     if(!wcRegistered) {
       WNDCLASSEX wc = {};
       wc.cbSize = sizeof(wc);
