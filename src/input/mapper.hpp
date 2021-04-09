@@ -9,6 +9,12 @@
 #include <optional>
 
 namespace rp::input {
+
+  //InputMapper
+  //Allows the user to take input events from the system
+  //And map them to any number of callbacks in a 1->N
+  //relationship. Adding a mapping returns an ID number
+  //that is used to access and modify the link later on.
   class InputMapper {
     public:
       using MappingID = uint64_t;
