@@ -1,10 +1,14 @@
 #pragma once
 
 //standard library headers
-#include <cstdint>
+#include <algorithm>
 #include <array>
-#include <memory>
+#include <cstdint>
 #include <exception>
+#include <iomanip>
+#include <memory>
+#include <random>
+#include <sstream>
 
 //fmt format library
 #include <fmt/format.h>
