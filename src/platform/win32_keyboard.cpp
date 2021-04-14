@@ -1,6 +1,5 @@
+#include "pch.hpp"
 #include "platform/win32_keyboard.hpp"
-
-#include "log/log_internal.hpp"
 
 namespace rp::input {
   Keyboard::Key translateWin32KeyCode(WPARAM win32_key_code, LPARAM flags) {

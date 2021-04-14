@@ -1,6 +1,5 @@
+#include "pch.hpp"
 #include "input/mapper.hpp"
-
-#include <exception>
 
 namespace rp::input {
       InputMapper::MappingID InputMapper::mapKeyPressEvent(const std::string& mapName, Keyboard::Key key, InputMapper::Callback keyCallback) {
