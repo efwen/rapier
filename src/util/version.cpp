@@ -1,5 +1,4 @@
 #include "pch.hpp"
-
 #include "util/version.hpp"
 
 namespace rp {

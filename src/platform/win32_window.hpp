@@ -2,10 +2,8 @@
 
 #include "core/window.hpp"
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-#include <windowsx.h>
+//include windows type definitions
+#include <winDef.h>
 
 namespace rp {
   class Win32Window : public rp::Window {

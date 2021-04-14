@@ -1,11 +1,10 @@
 #include "pch.hpp"
-
 #include "platform/win32_window.hpp"
-#include "platform/win32_keyboard.hpp"
 
 #include "input/keyboard.hpp"
 #include "input/mouse.hpp"
 
+#include "platform/win32_keyboard.hpp"
 namespace rp {
 
   Win32Window::Win32Window(const Properties& props) : Window(props) {

@@ -14,5 +14,11 @@
 #include <fmt/format.h>
 #include <fmt/color.h>
 
+//Windows headers
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <windowsx.h>
+
 //common internal headers
 #include "log/log_internal.hpp"
