@@ -1,7 +1,7 @@
 set(SRC_FILES pch.cpp)
 set(SRC_FILES ${SRC_FILES} core/core.cpp core/window.cpp)
 set(SRC_FILES ${SRC_FILES} log/log.cpp)
-set(SRC_FILES ${SRC_FILES} util/version.cpp)
+set(SRC_FILES ${SRC_FILES} util/version.cpp util/uuid.cpp)
 set(SRC_FILES ${SRC_FILES} input/mapper.cpp)
 
 if(${WIN32})
