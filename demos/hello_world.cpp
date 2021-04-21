@@ -14,6 +14,10 @@ public:
     rp::log::info("Hello App Init Method");
   }
 
+  void onEvent(const rp::Event& e) {
+    rp::log::info("Event: {}", e);
+  }
+
   void update() {
   }
 

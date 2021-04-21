@@ -23,11 +23,8 @@ namespace rp {
 
       auto window = createWindow(Window::Properties{"Hello Window", 1280, 768});
 
-      window->setCallback([](const Event& e) {
-        log::rp_trace("{0}", e);
-        if(e.type == Event::Type::MouseButtonPressed && e.mouse.button == input::Mouse::Button::Right) {
-          log::rp_info("RMB Clicked!");
-        }
+      window->setCallback([&](const Event& e) {
+        app->onEvent(e);
       });
 
       app->init();
