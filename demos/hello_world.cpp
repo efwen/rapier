@@ -24,7 +24,7 @@ public:
 
 int main(int argc, char** argv) {
     rp::StartupProperties startupProperties;
-    startupProperties.logClientPrefix = "Hell";
+    startupProperties.logClientPrefix = "Hello";
     startupProperties.windowProperties = {"hello World!", 1280, 720};
 
     rp::run(std::make_unique<HelloApp>(), startupProperties);
