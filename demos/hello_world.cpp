@@ -6,16 +6,12 @@
 
 class HelloApp : public rp::App {
 public:
-  HelloApp() {
-    rp::log::setClientPrefix("HelloApp");
-  }
-
   void init() {
     rp::log::info("Hello App Init Method");
   }
 
   void onEvent(const rp::Event& e) {
-    rp::log::info("Event: {}", e);
+    rp::log::trace("Event: {}", e);
   }
 
   void update() {
@@ -27,6 +23,10 @@ public:
 };
 
 int main(int argc, char** argv) {
-    rp::run(std::make_unique<HelloApp>(), argc, argv);
+    rp::StartupProperties startupProperties;
+    startupProperties.logClientPrefix = "Hello";
+    startupProperties.windowProperties = {"hello World!", 1280, 720};
+
+    rp::run(std::make_unique<HelloApp>(), startupProperties);
     return 0;
 }

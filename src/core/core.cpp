@@ -7,25 +7,18 @@
 
 
 namespace rp {
-  void run(std::unique_ptr<App> app, int argc, char** argv) {
+  void run(std::unique_ptr<App> app, StartupProperties startupProperties) {
     try {
       log::rp_info(log::horiz_rule);
       log::rp_info("Rapier v{} started!", getVersion().toString());
-      log::rp_info("{} CLI arguments given", argc);
-      for(int i = 0; i < argc; i++) {
-        log::rp_info("Arg {}: {}", i, argv[i]);
-      }
-      log::rp_info("{}{}", log::horiz_rule, log::new_line);
+      log::setClientPrefix(startupProperties.logClientPrefix);
 
       log::rp_info(log::horiz_rule);
       log::rp_info("Initializing Rapier!");
       log::rp_info(log::horiz_rule);
 
-      auto window = createWindow(Window::Properties{"Hello Window", 1280, 768});
-
-      window->setCallback([&](const Event& e) {
-        app->onEvent(e);
-      });
+      auto window = createWindow(startupProperties.windowProperties);
+      window->setCallback([&](const Event& e) { app->onEvent(e); });
 
       app->init();
 
@@ -33,11 +26,17 @@ namespace rp {
       log::rp_info("Initialization Complete!");
       log::rp_info("{}{}", log::horiz_rule, log::new_line);
 
+
+
+
       bool running = true;
       while(running) {
         app->update();
         running = window->processMessages();
       }
+
+
+
 
       log::rp_info(log::horiz_rule);
       log::rp_info("Shutting Down Rapier!");
