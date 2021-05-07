@@ -11,21 +11,19 @@ namespace rp::log {
   const size_t        rapier_prefix_length = rapier_prefix.length();
   size_t              source_prefix_length = calculateSourcePrefixLength(client_prefix.length()); 
 
-  constexpr auto kLevelPrefixes = std::to_array({
+  constexpr std::array<const char*, INDEX_CAST(log::Level::ENUM_SIZE)> kLevelPrefixes = {
     "[Trace]",
     " [Info]",
     " [Warn]",
     "[Error]"
-  });
-  static_assert(kLevelPrefixes.size() == INDEX_CAST(log::Level::ENUM_SIZE));
+  };
 
-  constexpr auto kLevelColors = std::to_array({
+  constexpr std::array<fmt::v7::color, INDEX_CAST(log::Level::ENUM_SIZE)> kLevelColors = {
     fmt::color::slate_gray,
     fmt::color::yellow,
     fmt::color::orange_red,
     fmt::color::red
-  });
-  static_assert(kLevelColors.size() == INDEX_CAST(log::Level::ENUM_SIZE));
+  };
 
   void logMessage(Source log_source, Level log_level, std::string_view format_string, fmt::format_args args) {
     // Log Format: [Source] Level: {Formatted String}
@@ -59,5 +57,4 @@ namespace rp::log {
     client_prefix = prefix; 
     source_prefix_length = calculateSourcePrefixLength(client_prefix.length());
   }
-
 }

@@ -36,17 +36,7 @@ namespace rp {
     }
 
 private:
-    static constexpr auto eventNames = std::to_array({
-      "Invalid",
-      "WindowClosed",
-      "KeyPressed",
-      "KeyReleased",
-      "MouseButtonPressed",
-      "MouseButtonReleased",
-      "MouseWheelScrolled",
-      "MouseMoved"
-    });
-    static_assert(eventNames.size() == INDEX_CAST(Event::Type::ENUM_SIZE));
+    static const std::array<const char*, INDEX_CAST(Event::Type::ENUM_SIZE)> eventNames;
   };
 }
 
