@@ -4,6 +4,7 @@
 #include "core/app.hpp"
 #include "core/window.hpp"
 #include "util/version.hpp"
+#include "gfx/gfx.hpp"
 
 
 namespace rp {
@@ -20,6 +21,8 @@ namespace rp {
       auto window = createWindow(startupProperties.windowProperties);
       window->setCallback([&](const Event& e) { app->onEvent(e); });
 
+      gfx::init();
+
       app->init();
 
       log::rp_info(log::horiz_rule);
@@ -32,6 +35,7 @@ namespace rp {
       bool running = true;
       while(running) {
         app->update();
+        gfx::draw();
         running = window->processMessages();
       }
 
@@ -43,6 +47,8 @@ namespace rp {
       log::rp_info(log::horiz_rule);
 
       app->shutdown();
+
+      gfx::shutdown();
 
       log::rp_info(log::horiz_rule);
       log::rp_info("See you next time!");

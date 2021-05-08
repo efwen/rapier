@@ -3,6 +3,7 @@ set(SRC_FILES ${SRC_FILES} core/core.cpp core/event.cpp core/window.cpp)
 set(SRC_FILES ${SRC_FILES} input/keyboard.cpp)
 set(SRC_FILES ${SRC_FILES} log/log.cpp)
 set(SRC_FILES ${SRC_FILES} util/version.cpp util/uuid.cpp)
+set(SRC_FILES ${SRC_FILES} gfx/gfx.cpp)
 
 if(${WIN32})
   message(STATUS "Adding Windows Platform Files...")
@@ -21,9 +22,11 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(rapier PUBLIC -Wall -Wextra -Wpedantic)
 endif()
 
+find_package(Vulkan REQUIRED FATAL_ERROR)
+
 target_precompile_headers(rapier PRIVATE pch.hpp)
-target_include_directories(rapier PRIVATE fmt::fmt "${CMAKE_PROJECT_DIRECTORY}")
-target_link_libraries(rapier fmt::fmt)
+target_include_directories(rapier PRIVATE fmt::fmt ${Vulkan_INCLUDE_DIRS} "${CMAKE_PROJECT_DIRECTORY}")
+target_link_libraries(rapier fmt::fmt Vulkan::Vulkan)
 
 set_target_properties(rapier
   PROPERTIES
