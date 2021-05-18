@@ -3,7 +3,7 @@ set(SRC_FILES ${SRC_FILES} core/core.cpp core/event.cpp core/window.cpp)
 set(SRC_FILES ${SRC_FILES} input/keyboard.cpp)
 set(SRC_FILES ${SRC_FILES} log/log.cpp)
 set(SRC_FILES ${SRC_FILES} util/version.cpp util/uuid.cpp)
-set(SRC_FILES ${SRC_FILES} gfx/gfx.cpp)
+set(SRC_FILES ${SRC_FILES} graphics/gfx.cpp)
 
 if(${WIN32})
   message(STATUS "Adding Windows Platform Files...")
@@ -12,7 +12,7 @@ else()
   message(FATAL_ERROR "OS not supported!") 
 endif()
 
-add_library(rapier ${SRC_FILES})
+add_library(rapier ${SRC_FILES} "graphics/validation.hpp")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(rapier PUBLIC -W3)

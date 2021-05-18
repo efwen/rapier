@@ -11,7 +11,7 @@ public:
   }
 
   void onEvent(const rp::Event& e) {
-    rp::log::trace("Event: {}", e);
+    //rp::log::trace("Event: {}", e);
   }
 
   void update() {

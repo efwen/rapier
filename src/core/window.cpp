@@ -12,4 +12,8 @@ namespace rp {
     log::rp_info("Title: {}, Resolution: {}x{} pixels", props.title, props.width, props.height);
     return std::make_unique<Win32Window>(props);
   }
+
+  Window::Properties Window::getProperties() {
+      return mProps;
+  }
 }

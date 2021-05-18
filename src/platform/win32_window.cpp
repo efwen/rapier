@@ -63,6 +63,14 @@ namespace rp {
     return true;
   }
 
+  void* Win32Window::getHandle() {
+      return (void*)mHandle;
+  }
+
+  bool Win32Window::isMinimized() {
+      return mProps.isMinimized;
+  }
+
   LRESULT Win32Window::internalWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     auto getMouseButtonId = [=]() { return static_cast<input::Mouse::Button>((message - WM_MOUSEFIRST) / 3); };
     auto getMousePos = [=]() { return input::Mouse::Position{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)}; };
@@ -75,6 +83,34 @@ namespace rp {
         if(mCallback) mCallback(event);
         PostQuitMessage(0);
         return 0;
+      }
+      case WM_SIZE:
+      {
+          switch (wParam) {
+          case SIZE_MINIMIZED:
+          {
+              mProps.isMinimized = true;
+              break;
+          }
+          case SIZE_MAXIMIZED:
+          {
+              mProps.isMinimized = false;
+              break;
+          }
+          case SIZE_RESTORED:
+          {
+              mProps.isMinimized = false;
+              break;
+          }
+        }
+        return 0;
+      }
+      case WM_SIZING:
+      {
+          RECT* rect = (RECT*)lParam;
+          mProps.width = rect->right - rect->left;
+          mProps.height = rect->bottom - rect->top;
+          return 0;
       }
       case WM_KEYDOWN:
       {

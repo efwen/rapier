@@ -12,6 +12,7 @@ namespace rp {
         std::string title;
         uint32_t width;
         uint32_t height;
+        bool isMinimized;
       };
 
       Window(const Properties& props);
@@ -21,6 +22,11 @@ namespace rp {
       virtual void setCallback(const Callback& callback) {
         mCallback = callback;
       };
+
+      virtual void* getHandle() = 0;
+      virtual bool isMinimized() = 0;
+
+      virtual Properties getProperties();
 
     protected:
       Callback mCallback;

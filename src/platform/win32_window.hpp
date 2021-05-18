@@ -13,6 +13,9 @@ namespace rp {
 
       bool processMessages();
 
+      void* getHandle();
+      bool isMinimized();
+
     protected:
       HWND mHandle = NULL;
 

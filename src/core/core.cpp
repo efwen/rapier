@@ -4,7 +4,7 @@
 #include "core/app.hpp"
 #include "core/window.hpp"
 #include "util/version.hpp"
-#include "gfx/gfx.hpp"
+#include "graphics/gfx.hpp"
 
 
 namespace rp {
@@ -19,9 +19,13 @@ namespace rp {
       log::rp_info(log::horiz_rule);
 
       auto window = createWindow(startupProperties.windowProperties);
-      window->setCallback([&](const Event& e) { app->onEvent(e); });
+      auto windowProps = window->getProperties();
 
-      gfx::init();
+      gfx::init(window.get());
+
+      window->setCallback([&](const Event& e) {
+              app->onEvent(e);
+      });
 
       app->init();
 
@@ -55,7 +59,7 @@ namespace rp {
       log::rp_info(log::horiz_rule);
     } catch(std::exception& e) {
       log::rp_error(log::horiz_rule);
-      log::rp_error("UNCAUGHT EXCEPTION!: {}", e.what());
+      log::rp_error("EXCEPTION!: {}", e.what());
       log::rp_error(log::horiz_rule);
       exit(-1);
     }
