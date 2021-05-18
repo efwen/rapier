@@ -28,20 +28,28 @@ namespace rp::gfx {
         VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
     };
 
-    Window* win = nullptr;
-    VkInstance instance = VK_NULL_HANDLE;
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device = VK_NULL_HANDLE;
-    VkQueue graphicsQueue = VK_NULL_HANDLE;
-    VkQueue presentQueue = VK_NULL_HANDLE;
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    struct VulkanContext {
+        VkInstance instance = VK_NULL_HANDLE;
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+        VkQueue graphicsQueue = VK_NULL_HANDLE;
+        VkQueue presentQueue = VK_NULL_HANDLE;
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+    };
 
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-    VkFormat swapchainImageFormat;
-    VkExtent2D swapchainExtent;
-    std::vector<VkImage> swapchainImages;
-    std::vector<VkImageView> swapchainImageViews;
-    std::vector<VkFramebuffer> swapchainFrameBuffers;
+    struct Swapchain {
+        VkSwapchainKHR handle = VK_NULL_HANDLE;
+        VkFormat imageFormat;
+        VkExtent2D extent;
+        std::vector<VkImage> images;
+        std::vector<VkImageView> imageViews;
+        std::vector<VkFramebuffer> frameBuffers;
+    };
+
+    VulkanContext context;
+    Swapchain swapchain;
+
+    Window* win = nullptr;
 
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
@@ -94,7 +102,7 @@ namespace rp::gfx {
         createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
         createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+        if (vkCreateInstance(&createInfo, nullptr, &context.instance) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create vulkan instance!");
         }
     }
@@ -112,7 +120,7 @@ namespace rp::gfx {
             if (props.queueFlags & VK_QUEUE_GRAPHICS_BIT) indices.graphicsFamily = i;
 
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(dev, i, surface, &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(dev, i, context.surface, &presentSupport);
             if (presentSupport) indices.presentFamily = i;
 
             i++;
@@ -168,22 +176,22 @@ namespace rp::gfx {
 
     SwapchainSupportDetails getSwapchainSupportDetails(VkPhysicalDevice physical_device) {
         SwapchainSupportDetails details;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &details.capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, context.surface, &details.capabilities);
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &formatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, context.surface, &formatCount, nullptr);
 
         if (formatCount != 0) {
             details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &formatCount, details.formats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, context.surface, &formatCount, details.formats.data());
         }
 
         uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &presentModeCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, context.surface, &presentModeCount, nullptr);
 
         if (presentModeCount != 0) {
             details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &presentModeCount, details.presentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, context.surface, &presentModeCount, details.presentModes.data());
         }
 
         return details;
@@ -191,10 +199,10 @@ namespace rp::gfx {
 
     void pickSuitableDevice() {
         uint32_t physicalDeviceCount = 0;
-        vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
+        vkEnumeratePhysicalDevices(context.instance, &physicalDeviceCount, nullptr);
         if (physicalDeviceCount == 0) throw std::runtime_error("Unable to find Vulkan-supported GPU!");
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-        vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, physicalDevices.data());
+        vkEnumeratePhysicalDevices(context.instance, &physicalDeviceCount, physicalDevices.data());
 
         auto isPhysicalDeviceSuitable = [](VkPhysicalDevice physical_device) {
             QueueFamilyIndices indices = findQueueFamilies(physical_device);
@@ -214,11 +222,11 @@ namespace rp::gfx {
         if (first_suitable == std::end(physicalDevices))
             throw std::runtime_error("Unable to find suitable GPU!");
 
-        physicalDevice = *first_suitable;
+        context.physicalDevice = *first_suitable;
     }
 
     void createLogicalDevice() {
-        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        QueueFamilyIndices indices = findQueueFamilies(context.physicalDevice);
 
         auto fillQueueCreateInfo = [](VkDeviceQueueCreateInfo& createInfo, uint32_t familyIndex, uint32_t queueCount, const std::vector<float>& priorities) {
             createInfo = {
@@ -268,12 +276,12 @@ namespace rp::gfx {
         createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredDeviceExtensions.size());
         createInfo.ppEnabledExtensionNames = requiredDeviceExtensions.data();
 
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+        if (vkCreateDevice(context.physicalDevice, &createInfo, nullptr, &context.device) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create logical device!");
         }
 
-        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+        vkGetDeviceQueue(context.device, indices.graphicsFamily.value(), 0, &context.graphicsQueue);
+        vkGetDeviceQueue(context.device, indices.presentFamily.value(), 0, &context.presentQueue);
     }
 
     void createSurface() {
@@ -282,7 +290,7 @@ namespace rp::gfx {
         createInfo.hwnd = (HWND)win->getHandle();
         createInfo.hinstance = GetModuleHandle(nullptr);
 
-        if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS) {
+        if (vkCreateWin32SurfaceKHR(context.instance, &createInfo, nullptr, &context.surface) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create window surface!");
         }
     }
@@ -319,6 +327,7 @@ namespace rp::gfx {
             }
             else {
                 VkExtent2D extents = {
+
                     width,
                     height
                 };
@@ -330,7 +339,7 @@ namespace rp::gfx {
             }
         };
 
-        auto swapchainSupport = getSwapchainSupportDetails(physicalDevice);
+        auto swapchainSupport = getSwapchainSupportDetails(context.physicalDevice);
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
         VkPresentModeKHR presentMode = choosePresentMode(swapchainSupport.presentModes);
         VkExtent2D extents = chooseSwapExtent(swapchainSupport.capabilities);
@@ -342,7 +351,7 @@ namespace rp::gfx {
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = surface;
+        createInfo.surface = context.surface;
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -351,7 +360,7 @@ namespace rp::gfx {
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 
-        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        QueueFamilyIndices indices = findQueueFamilies(context.physicalDevice);
         uint32_t queueFamilyIndices[2] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
         if (indices.graphicsFamily != indices.presentFamily) {
@@ -371,26 +380,26 @@ namespace rp::gfx {
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(context.device, &createInfo, nullptr, &swapchain.handle) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create swapchain!");
         }
 
-        vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
-        swapchainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data());
+        vkGetSwapchainImagesKHR(context.device, swapchain.handle, &imageCount, nullptr);
+        swapchain.images.resize(imageCount);
+        vkGetSwapchainImagesKHR(context.device, swapchain.handle, &imageCount, swapchain.images.data());
 
-        swapchainImageFormat = surfaceFormat.format;
-        swapchainExtent = extents;
+        swapchain.imageFormat = surfaceFormat.format;
+        swapchain.extent = extents;
     }
 
     void createSwapchainImageViews() {
-        swapchainImageViews.resize(swapchainImages.size());
-        for (size_t i = 0; i < swapchainImages.size(); i++) {
+        swapchain.imageViews.resize(swapchain.images.size());
+        for (size_t i = 0; i < swapchain.images.size(); i++) {
             VkImageViewCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            createInfo.image = swapchainImages[i];
+            createInfo.image = swapchain.images[i];
             createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            createInfo.format = swapchainImageFormat;
+            createInfo.format = swapchain.imageFormat;
             createInfo.components = {
                 VK_COMPONENT_SWIZZLE_IDENTITY,
                 VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -405,7 +414,7 @@ namespace rp::gfx {
                 1
             };
 
-            if (vkCreateImageView(device, &createInfo, nullptr, &swapchainImageViews[i]) != VK_SUCCESS) {
+            if (vkCreateImageView(context.device, &createInfo, nullptr, &swapchain.imageViews[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create image views!");
             }
         }
@@ -420,7 +429,7 @@ namespace rp::gfx {
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-        if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(context.device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create shader module!");
         }
 
@@ -429,7 +438,7 @@ namespace rp::gfx {
 
     void createRenderPass() {
         VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = swapchainImageFormat;
+        colorAttachment.format = swapchain.imageFormat;
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -464,7 +473,7 @@ namespace rp::gfx {
         createInfo.dependencyCount = 1;
         createInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(device, &createInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(context.device, &createInfo, nullptr, &renderPass) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create render pass!");
         }
     }
@@ -510,14 +519,14 @@ namespace rp::gfx {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)swapchainExtent.width;
-        viewport.height = (float)swapchainExtent.height;
+        viewport.width = (float)swapchain.extent.width;
+        viewport.height = (float)swapchain.extent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = swapchainExtent;
+        scissor.extent = swapchain.extent;
 
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -590,7 +599,7 @@ namespace rp::gfx {
         pipelineLayoutInfo.pushConstantRangeCount = 0;
         pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-        if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create pipeline layout");
         }
 
@@ -613,22 +622,22 @@ namespace rp::gfx {
         createInfo.basePipelineHandle = VK_NULL_HANDLE;
         createInfo.basePipelineIndex = -1;
 
-        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &createInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &createInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create graphics pipeline");
         }
 
-        vkDestroyShaderModule(device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(device, vertShaderModule, nullptr);
+        vkDestroyShaderModule(context.device, fragShaderModule, nullptr);
+        vkDestroyShaderModule(context.device, vertShaderModule, nullptr);
     }
 
 
     void createSwapchainFramebuffers() {
-        swapchainFrameBuffers.resize(swapchainImageViews.size());
+        swapchain.frameBuffers.resize(swapchain.imageViews.size());
 
         //Create a framebuffer for each image view in the swapchain
-        for (size_t i = 0; i < swapchainImageViews.size(); i++) {
+        for (size_t i = 0; i < swapchain.imageViews.size(); i++) {
             VkImageView attachments[] = {
-                swapchainImageViews[i]
+                swapchain.imageViews[i]
             };
 
             VkFramebufferCreateInfo createInfo{};
@@ -636,11 +645,11 @@ namespace rp::gfx {
             createInfo.renderPass = renderPass;
             createInfo.attachmentCount = 1;
             createInfo.pAttachments = attachments;
-            createInfo.width = swapchainExtent.width;
-            createInfo.height = swapchainExtent.height;
+            createInfo.width = swapchain.extent.width;
+            createInfo.height = swapchain.extent.height;
             createInfo.layers = 1;
 
-            if (vkCreateFramebuffer(device, &createInfo, nullptr, &swapchainFrameBuffers[i]) != VK_SUCCESS) {
+            if (vkCreateFramebuffer(context.device, &createInfo, nullptr, &swapchain.frameBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create framebuffer");
             }
         }
@@ -648,20 +657,20 @@ namespace rp::gfx {
 
 
     void createCommandPool() {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(context.physicalDevice);
 
         VkCommandPoolCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         createInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         createInfo.flags = 0;
 
-        if (vkCreateCommandPool(device, &createInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(context.device, &createInfo, nullptr, &commandPool) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create command pool!");
         }
     }
 
     void createCommandBuffers() {
-        commandBuffers.resize(swapchainFrameBuffers.size());
+        commandBuffers.resize(swapchain.frameBuffers.size());
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -669,7 +678,7 @@ namespace rp::gfx {
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(context.device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
             throw std::runtime_error("Failed to allocate command buffers!");
         }
 
@@ -684,9 +693,9 @@ namespace rp::gfx {
             VkRenderPassBeginInfo renderPassInfo{};
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = swapchainFrameBuffers[i];
+            renderPassInfo.framebuffer = swapchain.frameBuffers[i];
             renderPassInfo.renderArea.offset = { 0, 0 };
-            renderPassInfo.renderArea.extent = swapchainExtent;
+            renderPassInfo.renderArea.extent = swapchain.extent;
 
             VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
             renderPassInfo.clearValueCount = 1;
@@ -704,7 +713,7 @@ namespace rp::gfx {
     }
 
     void createSyncObjects() {
-        imagesInFlight.resize(swapchainImages.size(), VK_NULL_HANDLE);
+        imagesInFlight.resize(swapchain.images.size(), VK_NULL_HANDLE);
         VkSemaphoreCreateInfo semaphoreCreateInfo{};
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         
@@ -713,33 +722,33 @@ namespace rp::gfx {
         fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                vkCreateFence(device, &fenceCreateInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+            if (vkCreateSemaphore(context.device, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(context.device, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(context.device, &fenceCreateInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create semaphores!");
             }
         }
     }
 
     void cleanupSwapchain() {
-        for (auto framebuffer : swapchainFrameBuffers) {
-            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        for (auto framebuffer : swapchain.frameBuffers) {
+            vkDestroyFramebuffer(context.device, framebuffer, nullptr);
         }
 
-        vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+        vkFreeCommandBuffers(context.device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
-        vkDestroyPipeline(device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-        vkDestroyRenderPass(device, renderPass, nullptr);
+        vkDestroyPipeline(context.device, graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(context.device, pipelineLayout, nullptr);
+        vkDestroyRenderPass(context.device, renderPass, nullptr);
 
-        for (auto imageView : swapchainImageViews) {
-            vkDestroyImageView(device, imageView, nullptr);
+        for (auto imageView : swapchain.imageViews) {
+            vkDestroyImageView(context.device, imageView, nullptr);
         }
-        vkDestroySwapchainKHR(device, swapchain, nullptr);
+        vkDestroySwapchainKHR(context.device, swapchain.handle, nullptr);
     }
 
     void recreateSwapchain() {
-        vkDeviceWaitIdle(device);
+        vkDeviceWaitIdle(context.device);
 
         cleanupSwapchain();
 
@@ -766,7 +775,7 @@ namespace rp::gfx {
         createInstance();
 
         if (validationLayersEnabled) {
-            setupDebugCallback(instance);
+            setupDebugCallback(context.instance);
         }
 
         createSurface();
@@ -786,32 +795,32 @@ namespace rp::gfx {
 
     void shutdown() {
         log::rp_info("Shutting Down Renderer");
-        vkDeviceWaitIdle(device);
+        vkDeviceWaitIdle(context.device);
 
         cleanupSwapchain();
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(device, inFlightFences[i], nullptr);
+            vkDestroySemaphore(context.device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(context.device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(context.device, inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(device, commandPool, nullptr);
+        vkDestroyCommandPool(context.device, commandPool, nullptr);
 
-        vkDestroyDevice(device, nullptr);
-        vkDestroySurfaceKHR(instance, surface, nullptr);
+        vkDestroyDevice(context.device, nullptr);
+        vkDestroySurfaceKHR(context.instance, context.surface, nullptr);
         if (validationLayersEnabled) {
-            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+            DestroyDebugUtilsMessengerEXT(context.instance, debugMessenger, nullptr);
         }
-        vkDestroyInstance(instance, nullptr);
+        vkDestroyInstance(context.instance, nullptr);
     }
 
     void draw() {
         if (win->isMinimized()) return;
-        vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(context.device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(context.device, swapchain.handle, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             log::rp_warn("Swapchain out of date, recreating!");
@@ -823,7 +832,7 @@ namespace rp::gfx {
         }
 
         if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(context.device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
         imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
@@ -843,9 +852,9 @@ namespace rp::gfx {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
+        vkResetFences(context.device, 1, &inFlightFences[currentFrame]);
 
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+        if (vkQueueSubmit(context.graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to submit draw command buffer");
         }
 
@@ -856,14 +865,14 @@ namespace rp::gfx {
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapchains[] = { swapchain };
+        VkSwapchainKHR swapchains[] = { swapchain.handle };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapchains;
         
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        result = vkQueuePresentKHR(presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(context.presentQueue, &presentInfo);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             log::rp_warn("Swapchain out of date, recreating!");
