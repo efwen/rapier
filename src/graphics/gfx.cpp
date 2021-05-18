@@ -74,7 +74,7 @@ namespace rp::gfx {
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
 
-    //Buffer Synchronization objects
+    //Frame Synchronization objects
     const size_t MAX_FRAMES_IN_FLIGHT = 2;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> renderFinishedSemaphores;
@@ -83,14 +83,13 @@ namespace rp::gfx {
     size_t currentFrame = 0;
 
 
-    void createInstance() {
+    void createInstance(const std::string& appName, util::Version appVersion, const std::string& engineName, util::Version engineVersion) {
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Hello World";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "Rapier";
-        Version engineVersion = getVersion();
+        appInfo.pEngineName = engineName.c_str();
         appInfo.engineVersion = VK_MAKE_VERSION(engineVersion.major, engineVersion.minor, engineVersion.patch);
+        appInfo.pApplicationName = appName.c_str();
+        appInfo.applicationVersion = VK_MAKE_VERSION(appVersion.major, appVersion.minor, appVersion.patch);
         appInfo.apiVersion = VK_API_VERSION_1_1;
 
         VkInstanceCreateInfo createInfo{};
@@ -761,7 +760,7 @@ namespace rp::gfx {
         createCommandBuffers();
     }
 
-    void init(Window* window) {
+    void init(Window* window, const std::string appName, util::Version appVersion, const std::string& engineName, util::Version engineVersion) {
         pWindow = window;
         log::rp_info(log::horiz_rule);
         log::rp_info("Initializing Renderer");
@@ -773,7 +772,7 @@ namespace rp::gfx {
         }
         verifyRequiredExtensions();
 
-        createInstance();
+        createInstance(appName, appVersion, engineName, engineVersion);
 
         if (validationLayersEnabled) {
             setupDebugCallback(context.instance);

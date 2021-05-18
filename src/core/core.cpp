@@ -11,7 +11,7 @@ namespace rp {
   void run(std::unique_ptr<App> app, StartupProperties startupProperties) {
     try {
       log::rp_info(log::horiz_rule);
-      log::rp_info("Rapier v{} started!", getVersion().toString());
+      log::rp_info("Rapier v{} started!", util::rapierVersion.toString());
       log::setClientPrefix(startupProperties.logClientPrefix);
 
       log::rp_info(log::horiz_rule);
@@ -21,7 +21,8 @@ namespace rp {
       auto window = createWindow(startupProperties.windowProperties);
       auto windowProps = window->getProperties();
 
-      gfx::init(window.get());
+      gfx::init(window.get(), startupProperties.appName, startupProperties.appVersion,
+          "Rapier", util::rapierVersion);
 
       window->setCallback([&](const Event& e) {
               app->onEvent(e);

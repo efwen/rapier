@@ -23,10 +23,13 @@ public:
 };
 
 int main(int argc, char** argv) {
-    rp::StartupProperties startupProperties;
-    startupProperties.logClientPrefix = "Hello";
-    startupProperties.windowProperties = {"hello World!", 1280, 720};
+    rp::StartupProperties props;
+    props.appName = "Hello World App";
+    props.appVersion = { 0, 0, 1 };
+    props.logClientPrefix = "HelloApp";
+    auto windowProps = rp::Window::Properties{ "Hello World!!", 1280, 720 };
+    props.windowProperties = windowProps;
 
-    rp::run(std::make_unique<HelloApp>(), startupProperties);
+    rp::run(std::make_unique<HelloApp>(), props);
     return 0;
 }
