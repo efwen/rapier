@@ -8,6 +8,43 @@
 #include <vulkan/vulkan_win32.h>
 
 namespace rp::gfx {
+
+    struct VulkanContext {
+        VkInstance instance = VK_NULL_HANDLE;
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device = VK_NULL_HANDLE;
+        VkQueue graphicsQueue = VK_NULL_HANDLE;
+        VkQueue presentQueue = VK_NULL_HANDLE;
+        VkSurfaceKHR surface = VK_NULL_HANDLE;
+        VkCommandPool commandPool = VK_NULL_HANDLE;
+        std::vector<VkCommandBuffer> commandBuffers;
+    };
+
+    struct Swapchain {
+        VkSwapchainKHR handle = VK_NULL_HANDLE;
+        VkFormat imageFormat = VK_FORMAT_UNDEFINED;
+        VkExtent2D extent = {0, 0};
+        std::vector<VkImage> images;
+        std::vector<VkImageView> imageViews;
+        std::vector<VkFramebuffer> frameBuffers;
+    };
+
+    struct SwapchainSupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
+
+    struct QueueFamilyIndices {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        bool isValid() {
+            return graphicsFamily.has_value() &&
+                   presentFamily.has_value();
+        }
+    };
+
 #ifdef NDEBUG
     const bool validationLayersEnabled = false;
 #else
@@ -28,37 +65,16 @@ namespace rp::gfx {
         VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
     };
 
-    struct VulkanContext {
-        VkInstance instance = VK_NULL_HANDLE;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device = VK_NULL_HANDLE;
-        VkQueue graphicsQueue = VK_NULL_HANDLE;
-        VkQueue presentQueue = VK_NULL_HANDLE;
-        VkSurfaceKHR surface = VK_NULL_HANDLE;
-    };
-
-    struct Swapchain {
-        VkSwapchainKHR handle = VK_NULL_HANDLE;
-        VkFormat imageFormat;
-        VkExtent2D extent;
-        std::vector<VkImage> images;
-        std::vector<VkImageView> imageViews;
-        std::vector<VkFramebuffer> frameBuffers;
-    };
-
     VulkanContext context;
     Swapchain swapchain;
+    Window* pWindow = nullptr;
 
-    Window* win = nullptr;
-
+    //Pipeline and render pass for rendering the triangle
     VkPipeline graphicsPipeline;
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
 
-    VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
-
-
+    //Buffer Synchronization objects
     const size_t MAX_FRAMES_IN_FLIGHT = 2;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> renderFinishedSemaphores;
@@ -66,21 +82,6 @@ namespace rp::gfx {
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
 
-    struct QueueFamilyIndices {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
-
-        bool isValid() {
-            return graphicsFamily.has_value() &&
-                   presentFamily.has_value();
-        }
-    };
-
-    struct SwapchainSupportDetails {
-        VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
-    };
 
     void createInstance() {
         VkApplicationInfo appInfo{};
@@ -287,7 +288,7 @@ namespace rp::gfx {
     void createSurface() {
         VkWin32SurfaceCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        createInfo.hwnd = (HWND)win->getHandle();
+        createInfo.hwnd = (HWND)pWindow->getHandle();
         createInfo.hinstance = GetModuleHandle(nullptr);
 
         if (vkCreateWin32SurfaceKHR(context.instance, &createInfo, nullptr, &context.surface) != VK_SUCCESS) {
@@ -296,8 +297,8 @@ namespace rp::gfx {
     }
 
     void createSwapchain() {
-        uint32_t width = win->getProperties().width;
-        uint32_t height = win->getProperties().height;
+        uint32_t width = pWindow->getProperties().width;
+        uint32_t height = pWindow->getProperties().height;
         log::rp_info("Creating swapchain, window size: {}x{}", width, height);
 
         auto chooseSwapSurfaceFormat = [](const std::vector<VkSurfaceFormatKHR>&availableFormats) {
@@ -664,29 +665,29 @@ namespace rp::gfx {
         createInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         createInfo.flags = 0;
 
-        if (vkCreateCommandPool(context.device, &createInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(context.device, &createInfo, nullptr, &context.commandPool) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create command pool!");
         }
     }
 
     void createCommandBuffers() {
-        commandBuffers.resize(swapchain.frameBuffers.size());
+        context.commandBuffers.resize(swapchain.frameBuffers.size());
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = context.commandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+        allocInfo.commandBufferCount = (uint32_t)context.commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(context.device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(context.device, &allocInfo, context.commandBuffers.data()) != VK_SUCCESS) {
             throw std::runtime_error("Failed to allocate command buffers!");
         }
 
-        for (size_t i = 0; i < commandBuffers.size(); i++) {
+        for (size_t i = 0; i < context.commandBuffers.size(); i++) {
             VkCommandBufferBeginInfo beginInfo{};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+            if (vkBeginCommandBuffer(context.commandBuffers[i], &beginInfo) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to begin command recording");
             }
 
@@ -701,12 +702,12 @@ namespace rp::gfx {
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-            vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-            vkCmdEndRenderPass(commandBuffers[i]);
+            vkCmdBeginRenderPass(context.commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBindPipeline(context.commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            vkCmdDraw(context.commandBuffers[i], 3, 1, 0, 0);
+            vkCmdEndRenderPass(context.commandBuffers[i]);
 
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+            if (vkEndCommandBuffer(context.commandBuffers[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to record command buffer");
             }
         }
@@ -735,7 +736,7 @@ namespace rp::gfx {
             vkDestroyFramebuffer(context.device, framebuffer, nullptr);
         }
 
-        vkFreeCommandBuffers(context.device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+        vkFreeCommandBuffers(context.device, context.commandPool, static_cast<uint32_t>(context.commandBuffers.size()), context.commandBuffers.data());
 
         vkDestroyPipeline(context.device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(context.device, pipelineLayout, nullptr);
@@ -761,7 +762,7 @@ namespace rp::gfx {
     }
 
     void init(Window* window) {
-        win = window;
+        pWindow = window;
         log::rp_info(log::horiz_rule);
         log::rp_info("Initializing Renderer");
 
@@ -805,7 +806,7 @@ namespace rp::gfx {
             vkDestroyFence(context.device, inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(context.device, commandPool, nullptr);
+        vkDestroyCommandPool(context.device, context.commandPool, nullptr);
 
         vkDestroyDevice(context.device, nullptr);
         vkDestroySurfaceKHR(context.instance, context.surface, nullptr);
@@ -816,7 +817,7 @@ namespace rp::gfx {
     }
 
     void draw() {
-        if (win->isMinimized()) return;
+        if (pWindow->isMinimized()) return;
         vkWaitForFences(context.device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex;
@@ -846,7 +847,7 @@ namespace rp::gfx {
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &context.commandBuffers[imageIndex];
 
         VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
