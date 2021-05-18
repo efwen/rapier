@@ -9,6 +9,7 @@
 #include <memory>
 #include <random>
 #include <sstream>
+#include <fstream>
 #include <optional>
 
 //fmt format library

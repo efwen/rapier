@@ -2,9 +2,8 @@
 #include "graphics/gfx.hpp"
 #include "graphics/validation.hpp"
 #include "util/version.hpp"
+#include "util/file_io.hpp"
 #include "core/window.hpp"
-
-#include <fstream>
 
 #include <vulkan/vulkan_win32.h>
 
@@ -14,22 +13,6 @@ namespace rp::gfx {
 #else
     const bool validationLayersEnabled = true;
 #endif
-
-
-    std::vector<char> readShaderFile(const std::string& filename) {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open()) {
-            throw std::runtime_error("Failed to open shader file");
-        }
-
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-        file.close();
-        return buffer;
-    }
 
     std::vector<const char*> requiredExtensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
@@ -487,8 +470,9 @@ namespace rp::gfx {
     }
 
     void createGraphicsPipeline() {
-        auto vertShader = readShaderFile("../../../../../shaders/vert.spv");
-        auto fragShader = readShaderFile("../../../../../shaders/frag.spv");
+        const std::string& shaderDir = "../../../../../shaders/";
+        auto vertShader = util::loadBinaryFile(shaderDir + "vert.spv");
+        auto fragShader = util::loadBinaryFile(shaderDir + "frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShader);
         VkShaderModule fragShaderModule = createShaderModule(fragShader);
