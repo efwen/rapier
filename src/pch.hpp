@@ -16,9 +16,6 @@
 #include <fmt/format.h>
 #include <fmt/color.h>
 
-//vulkan rendering api
-#include <vulkan/vulkan.h>
-
 //Windows headers
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX

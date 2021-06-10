@@ -19,9 +19,9 @@ namespace rp {
       log::rp_info(log::horiz_rule);
 
       auto window = createWindow(startupProperties.windowProperties);
-      auto windowProps = window->getProperties();
+      auto windowProps = window->GetProperties();
 
-      gfx::init(window.get(), startupProperties.appName, startupProperties.appVersion,
+      gfx::Initialize(window.get(), startupProperties.appName, startupProperties.appVersion,
           "Rapier", util::rapierVersion);
 
       window->setCallback([&](const Event& e) {
@@ -40,7 +40,7 @@ namespace rp {
       bool running = true;
       while(running) {
         app->update();
-        gfx::draw();
+        gfx::DrawFrame();
         running = window->processMessages();
       }
 
@@ -53,7 +53,7 @@ namespace rp {
 
       app->shutdown();
 
-      gfx::shutdown();
+      gfx::Shutdown();
 
       log::rp_info(log::horiz_rule);
       log::rp_info("See you next time!");

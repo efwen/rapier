@@ -1,9 +1,9 @@
 set(SRC_FILES pch.cpp)
-set(SRC_FILES ${SRC_FILES} core/core.cpp core/event.cpp core/window.cpp)
-set(SRC_FILES ${SRC_FILES} input/keyboard.cpp)
-set(SRC_FILES ${SRC_FILES} log/log.cpp)
-set(SRC_FILES ${SRC_FILES} util/version.cpp util/uuid.cpp util/file_io.cpp)
-set(SRC_FILES ${SRC_FILES} graphics/gfx.cpp)
+set(SRC_FILES ${SRC_FILES}  core/core.cpp core/event.cpp core/window.cpp)
+set(SRC_FILES ${SRC_FILES}  input/keyboard.cpp)
+set(SRC_FILES ${SRC_FILES}  log/log.cpp)
+set(SRC_FILES ${SRC_FILES}  util/version.cpp util/uuid.cpp util/file_io.cpp)
+set(SRC_FILES ${SRC_FILES}  graphics/gfx.cpp graphics/vulkan_device.cpp graphics/swapchain.cpp graphics/vulkan_queue.cpp graphics/shaders.cpp graphics/framesync.cpp)
 
 if(${WIN32})
   message(STATUS "Adding Windows Platform Files...")
@@ -12,7 +12,7 @@ else()
   message(FATAL_ERROR "OS not supported!") 
 endif()
 
-add_library(rapier ${SRC_FILES} "graphics/validation.hpp")
+add_library(rapier ${SRC_FILES})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(rapier PUBLIC -W3)

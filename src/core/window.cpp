@@ -13,7 +13,7 @@ namespace rp {
     return std::make_unique<Win32Window>(props);
   }
 
-  Window::Properties Window::getProperties() {
+  Window::Properties Window::GetProperties() {
       return mProps;
   }
 }
